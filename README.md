@@ -90,3 +90,8 @@ Pending, then In Progress, then Resolved. Only admins can change the status.
 - Email or SMS notifications when a status changes
 - Comments on requests
 - Charts for analytics
+## Configuration
+
+For local development no setup is needed. For deployment, set these environment variables:
+- `DJANGO_SECRET_KEY`: a new secret key (never reuse the one from development)
+- `DJANGO_DEBUG`: set to `False` in production
