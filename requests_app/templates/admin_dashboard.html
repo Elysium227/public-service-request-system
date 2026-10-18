@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+{% if all_requests %}
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%; background:#fff; border-collapse:collapse;">
+  <tr>
+    <th>Citizen</th>
+    <th>Category</th>
+    <th>Location</th>
+    <th>Description</th>
+    <th>Status</th>
+    <th>Date</th>
+    <th>Image</th>
+  </tr>
+  {% for r in all_requests %}
+  <tr>
+    <td>{{ r.citizen.username }}</td>
+    <td>{{ r.get_category_display }}</td>
+    <td>{{ r.location }}</td>
+    <td>{{ r.description }}</td>
+    <td>{{ r.get_status_display }}</td>
+    <td>{{ r.created_at|date:"d M Y" }}</td>
+    <td>{% if r.image %}<img src="{{ r.image.url }}" width="80">{% else %}-{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No requests have been submitted yet.</p>
+{% endif %}
+{% endblock %}

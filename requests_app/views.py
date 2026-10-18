@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from .forms import ServiceRequestForm
 from .models import ServiceRequest
 
@@ -40,3 +41,9 @@ def submit_request(request):
 def my_requests(request):
     requests_list = ServiceRequest.objects.filter(citizen=request.user).order_by("-created_at")
     return render(request, "my_requests.html", {"requests_list": requests_list})
+
+
+@staff_member_required(login_url="login")
+def admin_dashboard(request):
+    all_requests = ServiceRequest.objects.select_related("citizen").order_by("-created_at")
+    return render(request, "admin_dashboard.html", {"all_requests": all_requests})
