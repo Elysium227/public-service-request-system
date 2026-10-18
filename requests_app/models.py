@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+# A service request submitted by a citizen, tracked through three statuses
 class ServiceRequest(models.Model):
     CATEGORY_CHOICES = [
         ("streetlight", "Broken Streetlight"),
