@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Public Service Request System</h1>
+<p>Report problems in your area, like broken streetlights, water issues or missed garbage collection, and track them until they are resolved.</p>
 {% if user.is_authenticated %}
   <p>Welcome, {{ user.username }}.</p>
+  <p>
+    <a class="btn" href="{% url 'submit_request' %}">Submit a request</a>
+    <a class="btn" href="{% url 'my_requests' %}">View my requests</a>
+  </p>
 {% else %}
-  <p>Log in or register to report a problem in your area.</p>
+  <p>
+    <a class="btn" href="{% url 'login' %}">Log in</a>
+    <a class="btn" href="{% url 'register' %}">Register</a>
+  </p>
 {% endif %}
 {% endblock %}
