@@ -1,10 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
 <h1>Public Service Request System</h1>
 {% if user.is_authenticated %}
-  <p>Welcome, {{ user.username }}</p>
-  <form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Log out</button>
-  </form>
+  <p>Welcome, {{ user.username }}.</p>
 {% else %}
-  <a href="{% url 'login' %}">Log in</a> | <a href="{% url 'register' %}">Register</a>
+  <p>Log in or register to report a problem in your area.</p>
 {% endif %}
+{% endblock %}
