@@ -18,7 +18,17 @@
     <td>{{ r.get_category_display }}</td>
     <td>{{ r.location }}</td>
     <td>{{ r.description }}</td>
-    <td>{{ r.get_status_display }}</td>
+    <td>
+      <form method="post" action="{% url 'update_status' r.pk %}">
+        {% csrf_token %}
+        <select name="status">
+          {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if r.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Update</button>
+      </form>
+    </td>
     <td>{{ r.created_at|date:"d M Y" }}</td>
     <td>{% if r.image %}<img src="{{ r.image.url }}" width="80">{% else %}-{% endif %}</td>
   </tr>

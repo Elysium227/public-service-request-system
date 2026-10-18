@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
@@ -46,4 +46,20 @@ def my_requests(request):
 @staff_member_required(login_url="login")
 def admin_dashboard(request):
     all_requests = ServiceRequest.objects.select_related("citizen").order_by("-created_at")
-    return render(request, "admin_dashboard.html", {"all_requests": all_requests})
+    return render(
+        request,
+        "admin_dashboard.html",
+        {"all_requests": all_requests, "status_choices": ServiceRequest.STATUS_CHOICES},
+    )
+
+
+@staff_member_required(login_url="login")
+def update_status(request, pk):
+    if request.method == "POST":
+        service_request = get_object_or_404(ServiceRequest, pk=pk)
+        new_status = request.POST.get("status")
+        valid_statuses = [choice[0] for choice in ServiceRequest.STATUS_CHOICES]
+        if new_status in valid_statuses:
+            service_request.status = new_status
+            service_request.save()
+    return redirect("admin_dashboard")
