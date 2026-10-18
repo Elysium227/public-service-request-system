@@ -2,9 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import PermissionDenied
 from .forms import ServiceRequestForm
 from .models import ServiceRequest
+
+
+def staff_required(view_func):
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
 def home(request):
@@ -43,7 +52,7 @@ def my_requests(request):
     return render(request, "my_requests.html", {"requests_list": requests_list})
 
 
-@staff_member_required(login_url="login")
+@staff_required
 def admin_dashboard(request):
     all_requests = ServiceRequest.objects.select_related("citizen").order_by("-created_at")
     pending_count = ServiceRequest.objects.filter(status="pending").count()
@@ -61,7 +70,7 @@ def admin_dashboard(request):
     return render(request, "admin_dashboard.html", context)
 
 
-@staff_member_required(login_url="login")
+@staff_required
 def update_status(request, pk):
     if request.method == "POST":
         service_request = get_object_or_404(ServiceRequest, pk=pk)
