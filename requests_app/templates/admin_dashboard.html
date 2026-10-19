@@ -50,6 +50,7 @@
 {% if all_requests %}
 <table>
   <tr>
+    <th>Reference</th>
     <th>Citizen</th>
     <th>Category</th>
     <th>Location</th>
@@ -60,6 +61,7 @@
   </tr>
   {% for r in all_requests %}
   <tr>
+    <td>{{ r.reference }}</td>
     <td>{{ r.citizen.username }}</td>
     <td>{{ r.get_category_display }}</td>
     <td>{{ r.location }}</td>

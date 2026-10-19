@@ -28,3 +28,8 @@ class ServiceRequest(models.Model):
 
     def __str__(self):
         return f"{self.get_category_display()} at {self.location}"
+
+    @property
+    def reference(self):
+        # Readable reference number built from the database id, e.g. REQ-0007
+        return f"REQ-{self.pk:04d}"

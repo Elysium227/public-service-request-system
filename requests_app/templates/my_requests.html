@@ -2,8 +2,9 @@
 {% block content %}
 <h2>My Requests</h2>
 {% if requests_list %}
-<table border="1" cellpadding="8" cellspacing="0" style="width:100%; background:#fff; border-collapse:collapse;">
+<table>
   <tr>
+    <th>Reference</th>
     <th>Category</th>
     <th>Location</th>
     <th>Description</th>
@@ -13,10 +14,11 @@
   </tr>
   {% for r in requests_list %}
   <tr>
+    <td>{{ r.reference }}</td>
     <td>{{ r.get_category_display }}</td>
     <td>{{ r.location }}</td>
     <td>{{ r.description }}</td>
-        <td><span class="badge {{ r.status }}">{{ r.get_status_display }}</span></td>
+    <td><span class="badge {{ r.status }}">{{ r.get_status_display }}</span></td>
     <td>{{ r.created_at|date:"d M Y" }}</td>
     <td>{% if r.image %}<img src="{{ r.image.url }}" width="80">{% else %}-{% endif %}</td>
   </tr>

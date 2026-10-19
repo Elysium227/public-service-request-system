@@ -46,7 +46,7 @@ def submit_request(request):
             service_request = form.save(commit=False)
             service_request.citizen = request.user
             service_request.save()
-            messages.success(request, "Your request has been submitted.")
+            messages.success(request, f"Your request has been submitted. Reference: {service_request.reference}")
             return redirect("my_requests")
     else:
         form = ServiceRequestForm()
