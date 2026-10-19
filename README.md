@@ -6,12 +6,11 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 
 **Citizens**
 - Register, log in and log out
-- Submit a request with category, location, description and an optional image
-- View their own requests and see the current status of each
-- Choose a priority (Low, Medium or High) when submitting
+- Submit a request with category, priority (Low, Medium or High), location, description and an optional image
 - Each request gets a reference number such as REQ-0007
+- View their own requests and see the current status of each
 - Open a detail page for any of their own requests
-- Dark mode toggle that remembers the choice
+- Success messages confirm actions such as submitting a request
 
 **Admins**
 - Dashboard listing all requests from all citizens
@@ -19,6 +18,12 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 - Analytics: total, open (pending plus in progress) and resolved counts, with a progress bar
 - Filter requests by status and category
 - Open the detail page of any request
+
+**Interface**
+- Home page with a hero section, a how-it-works guide and the categories that can be reported
+- Dark mode toggle that remembers the choice
+- Status and priority shown as coloured badges
+- Responsive layout that works on small screens
 
 **Access control**
 - Citizen pages require login
@@ -30,7 +35,7 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 - Python and Django
 - SQLite database (Django default)
 - Pillow for image uploads
-- Plain HTML and CSS templates
+- Plain HTML and CSS templates, with a small script for the dark mode toggle
 
 ## Setup
 
@@ -41,7 +46,7 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 ```
 2. Create and activate a virtual environment:
 ```
-      python -m venv venv
+   python -m venv venv
    venv\Scripts\activate             # Windows (PowerShell)
    source venv/Scripts/activate      # Windows (Git Bash)
    source venv/bin/activate          # Mac/Linux
@@ -64,11 +69,13 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 ```
 7. Open http://127.0.0.1:8000
 
+Uploaded images are stored in the `media/` folder, which is not committed to the repository.
+
 ## Usage
 
 1. Click **Register** to create a citizen account.
 2. Click **Submit request**, fill in the form, choose a priority and submit.
-3. Open **My requests** to see your requests and their status.
+3. Open **My requests** to see your requests and their status, and click a reference number for the full details.
 4. Log in with the admin account and open **Dashboard** to view all requests, filter them and change their status.
 5. Log back in as the citizen to see the updated status.
 
@@ -79,11 +86,12 @@ To make an existing user an admin, log in at `/admin/` with the superuser accoun
 ```
 config/                 Project settings and main URLs
 requests_app/
-    models.py           ServiceRequest model
+    models.py           ServiceRequest model (category, priority, status, image)
     forms.py            Request submission form
     views.py            Page logic (citizen and admin views)
     urls.py             App URLs
-    templates/          HTML pages
+    templates/          HTML pages (base layout, home, forms, dashboard, details)
+    migrations/         Database migrations
 manage.py
 requirements.txt
 ```
@@ -92,20 +100,19 @@ requirements.txt
 
 Pending, then In Progress, then Resolved. Only admins can change the status.
 
-   ## Configuration
+## Configuration
 
-   For local development no setup is needed. For deployment, set these environment variables:
-   - `DJANGO_SECRET_KEY`: a new secret key (never reuse the one from development)
-   - `DJANGO_DEBUG`: set to `False` in production
+For local development no setup is needed. For deployment, set these environment variables:
+- `DJANGO_SECRET_KEY`: a new secret key (never reuse the one from development)
+- `DJANGO_DEBUG`: set to `False` in production
 
-   ## Possible Future Improvements
+## Possible Future Improvements
 
-   - Login with email and a forgot-password flow
-   - Email notifications when a status changes
-   - Admin notes on a request, visible to the citizen
-   - Let citizens edit or cancel a Pending request
-   - Search and pagination on the dashboard
-   - CSV export for admins
-   - A chart on the dashboard
-   - Automated tests
-   - 
+- Login with email and a forgot-password flow
+- Email notifications when a status changes
+- Admin notes on a request, visible to the citizen
+- Let citizens edit or cancel a Pending request
+- Search and pagination on the dashboard
+- CSV export for admins
+- A chart on the dashboard
+- Automated tests
