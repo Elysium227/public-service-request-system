@@ -15,7 +15,7 @@
   </tr>
   {% for r in requests_list %}
   <tr>
-    <td>{{ r.reference }}</td>
+    <td><a href="{% url 'request_detail' r.pk %}">{{ r.reference }}</a></td>
     <td>{{ r.get_category_display }}</td>
     <td><span class="badge {{ r.priority }}">{{ r.get_priority_display }}</span></td>
     <td>{{ r.location }}</td>

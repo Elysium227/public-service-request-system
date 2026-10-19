@@ -110,3 +110,12 @@ def update_status(request, pk):
             service_request.save()
             messages.success(request, f"Status updated to {service_request.get_status_display()}.")
     return redirect("admin_dashboard")
+
+
+# Detail page for one request: only the owner or staff can open it
+@login_required
+def request_detail(request, pk):
+    service_request = get_object_or_404(ServiceRequest, pk=pk)
+    if service_request.citizen != request.user and not request.user.is_staff:
+        raise PermissionDenied
+    return render(request, "request_detail.html", {"r": service_request})

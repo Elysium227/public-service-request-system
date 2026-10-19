@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Request {{ r.reference }}</h2>
+<div class="card">
+  <p><strong>Status:</strong> <span class="badge {{ r.status }}">{{ r.get_status_display }}</span></p>
+  <p><strong>Priority:</strong> <span class="badge {{ r.priority }}">{{ r.get_priority_display }}</span></p>
+  <p><strong>Category:</strong> {{ r.get_category_display }}</p>
+  <p><strong>Location:</strong> {{ r.location }}</p>
+  <p><strong>Submitted by:</strong> {{ r.citizen.username }}</p>
+  <p><strong>Submitted on:</strong> {{ r.created_at|date:"d M Y, H:i" }}</p>
+  <p><strong>Description:</strong></p>
+  <p>{{ r.description|linebreaksbr }}</p>
+  {% if r.image %}
+    <p><img src="{{ r.image.url }}" style="max-width:100%; border-radius:6px;"></p>
+  {% endif %}
+</div>
+<p>
+  {% if user.is_staff %}
+    <a href="{% url 'admin_dashboard' %}">Back to dashboard</a>
+  {% else %}
+    <a href="{% url 'my_requests' %}">Back to my requests</a>
+  {% endif %}
+</p>
+{% endblock %}
