@@ -46,6 +46,19 @@
     .message.success { background: #dcfce7; color: #166534; }
     .message.error { background: #fee2e2; color: #991b1b; }
     .card { background: #fff; padding: 20px; border-radius: 8px; max-width: 640px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 16px; }
+    body.dark { background: #121212; color: #e6e6e6; }
+    body.dark .card, body.dark table { background: #1e1e1e; color: #e6e6e6; }
+    body.dark th, body.dark td { border-color: #333; }
+    body.dark a { color: #8ab4f8; }
+    body.dark input, body.dark select, body.dark textarea { background: #2a2a2a; color: #e6e6e6; border: 1px solid #444; }
+    #theme-toggle { position: fixed; bottom: 16px; right: 16px; width: 56px; height: 30px; padding: 0; border: 1px solid #888; border-radius: 15px; background: #d0d7de; cursor: pointer; }
+    #theme-toggle .knob { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); transition: transform 0.2s; }
+    body.dark #theme-toggle { background: #2f6fb5; border-color: #5a8fc7; }
+    body.dark #theme-toggle .knob { transform: translateX(26px); background: #e6e6e6; }
+    body.dark h1, body.dark h2, body.dark h3 { color: #8ab4f8; }
+    body.dark nav, body.dark header { background: #0f2438; border-bottom: 1px solid #1f3a57; }
+    body.dark .btn { background: #2f6fb5; color: #fff; }
+    body.dark .card { border: 1px solid #2a2a2a; }
     @media (max-width: 700px) {
       nav { padding: 12px 16px; }
       table { display: block; overflow-x: auto; }
@@ -53,6 +66,7 @@
   </style>
 </head>
 <body>
+  <button id="theme-toggle" type="button" aria-label="Toggle dark mode"><span class="knob"></span></button>
   <nav>
     <a class="brand" href="{% url 'home' %}">Service Requests</a>
     <a href="{% url 'home' %}">Home</a>
@@ -78,5 +92,15 @@
     {% endif %}
     {% block content %}{% endblock %}
   </main>
+  <script>
+  const toggle = document.getElementById("theme-toggle");
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+  }
+  toggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  });
+</script>
 </body>
 </html>
