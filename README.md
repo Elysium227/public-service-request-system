@@ -2,6 +2,8 @@
 
 A mini eCitizen-style web app where citizens report public service problems (broken streetlight, water issue, garbage collection) and admins track them until they are resolved.
 
+**Live demo:** https://elysium227.pythonanywhere.com
+
 ## Features
 
 **Citizens**
@@ -16,7 +18,9 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 - Dashboard listing all requests from all citizens
 - Update a request's status: Pending, In Progress or Resolved
 - Analytics: total, open (pending plus in progress) and resolved counts, with a progress bar
+- Charts: a doughnut chart of requests by status and a bar chart of requests by category
 - Filter requests by status and category
+- Export the requests to a CSV file that opens in Excel, respecting the current filters
 - Open the detail page of any request
 
 **Interface**
@@ -27,7 +31,7 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 
 **Access control**
 - Citizen pages require login
-- The dashboard and status updates are for staff users only. Other users see an "Access denied" page.
+- The dashboard, charts, CSV export and status updates are for staff users only. Other users see an "Access denied" page.
 - Citizens can only open their own requests. Opening someone else's shows "Access denied".
 
 ## Tech Stack
@@ -36,6 +40,8 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 - SQLite database (Django default)
 - Pillow for image uploads
 - Plain HTML and CSS templates, with a small script for the dark mode toggle
+- Charts drawn with CSS only, so no extra libraries are needed
+- Hosted on PythonAnywhere
 
 ## Setup
 
@@ -76,8 +82,9 @@ Uploaded images are stored in the `media/` folder, which is not committed to the
 1. Click **Register** to create a citizen account.
 2. Click **Submit request**, fill in the form, choose a priority and submit.
 3. Open **My requests** to see your requests and their status, and click a reference number for the full details.
-4. Log in with the admin account and open **Dashboard** to view all requests, filter them and change their status.
-5. Log back in as the citizen to see the updated status.
+4. Log in with the admin account and open **Dashboard** to see the charts, view all requests, filter them and change their status.
+5. Click **Export CSV** on the dashboard to download the requests (after filtering, only the filtered rows are exported).
+6. Log back in as the citizen to see the updated status.
 
 To make an existing user an admin, log in at `/admin/` with the superuser account, open Users, and tick **Staff status** for that user.
 
@@ -88,7 +95,7 @@ config/                 Project settings and main URLs
 requests_app/
     models.py           ServiceRequest model (category, priority, status, image)
     forms.py            Request submission form
-    views.py            Page logic (citizen and admin views)
+    views.py            Page logic (citizen and admin views, CSV export)
     urls.py             App URLs
     templates/          HTML pages (base layout, home, forms, dashboard, details)
     migrations/         Database migrations
@@ -106,6 +113,40 @@ For local development no setup is needed. For deployment, set these environment 
 - `DJANGO_SECRET_KEY`: a new secret key (never reuse the one from development)
 - `DJANGO_DEBUG`: set to `False` in production
 
+`ALLOWED_HOSTS` in `config/settings.py` already includes `.pythonanywhere.com`. If you deploy somewhere else, add your domain there.
+
+## Deployment (PythonAnywhere)
+
+The live demo runs on a free PythonAnywhere account. To deploy your own copy:
+
+1. In a PythonAnywhere Bash console, clone the repo and install the dependencies (Python 3.12 or newer):
+```
+   git clone https://github.com/Elysium227/public-service-request-system.git
+   cd public-service-request-system
+   python3.13 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+```
+2. Create the database, an admin account and the static files:
+```
+   python manage.py migrate
+   python manage.py createsuperuser
+   python manage.py collectstatic --noinput
+   mkdir -p media
+```
+3. On the **Web** tab, add a new web app with **Manual configuration** and set:
+   - Source code and working directory: `/home/<username>/public-service-request-system`
+   - Virtualenv: `/home/<username>/public-service-request-system/venv`
+   - Static files: `/static/` points to the `staticfiles` folder and `/media/` points to the `media` folder in the project directory
+4. In the WSGI configuration file, set `DJANGO_SETTINGS_MODULE` to `config.settings`, `DJANGO_SECRET_KEY` to a new random key and `DJANGO_DEBUG` to `False`, then load the Django application.
+5. Press **Reload** on the Web tab.
+
+To update the live site after pushing changes to GitHub, run this in a Bash console and press **Reload** again:
+
+```
+cd ~/public-service-request-system && git pull && source venv/bin/activate && python manage.py migrate && python manage.py collectstatic --noinput
+```
+
 ## Possible Future Improvements
 
 - Login with email and a forgot-password flow
@@ -113,6 +154,4 @@ For local development no setup is needed. For deployment, set these environment 
 - Admin notes on a request, visible to the citizen
 - Let citizens edit or cancel a Pending request
 - Search and pagination on the dashboard
-- CSV export for admins
-- A chart on the dashboard
 - Automated tests
