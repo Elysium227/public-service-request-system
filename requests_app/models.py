@@ -18,8 +18,15 @@ class ServiceRequest(models.Model):
         ("resolved", "Resolved"),
     ]
 
+    PRIORITY_CHOICES = [
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
+    ]
+
     citizen = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="medium")
     location = models.CharField(max_length=200)
     description = models.TextField()
     image = models.ImageField(upload_to="request_images/", blank=True, null=True)

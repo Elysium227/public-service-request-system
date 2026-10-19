@@ -5,4 +5,4 @@ from .models import ServiceRequest
 class ServiceRequestForm(forms.ModelForm):
     class Meta:
         model = ServiceRequest
-        fields = ["category", "location", "description", "image"]
+        fields = ["category", "priority", "location", "description", "image"]

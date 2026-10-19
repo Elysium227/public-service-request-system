@@ -6,6 +6,7 @@
   <tr>
     <th>Reference</th>
     <th>Category</th>
+    <th>Priority</th>
     <th>Location</th>
     <th>Description</th>
     <th>Status</th>
@@ -16,6 +17,7 @@
   <tr>
     <td>{{ r.reference }}</td>
     <td>{{ r.get_category_display }}</td>
+    <td><span class="badge {{ r.priority }}">{{ r.get_priority_display }}</span></td>
     <td>{{ r.location }}</td>
     <td>{{ r.description }}</td>
     <td><span class="badge {{ r.status }}">{{ r.get_status_display }}</span></td>

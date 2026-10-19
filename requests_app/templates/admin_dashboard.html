@@ -53,6 +53,7 @@
     <th>Reference</th>
     <th>Citizen</th>
     <th>Category</th>
+    <th>Priority</th>
     <th>Location</th>
     <th>Description</th>
     <th>Status</th>
@@ -64,6 +65,7 @@
     <td>{{ r.reference }}</td>
     <td>{{ r.citizen.username }}</td>
     <td>{{ r.get_category_display }}</td>
+    <td><span class="badge {{ r.priority }}">{{ r.get_priority_display }}</span></td>
     <td>{{ r.location }}</td>
     <td>{{ r.description }}</td>
     <td>
