@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
@@ -7,6 +8,7 @@ from .forms import ServiceRequestForm
 from .models import ServiceRequest
 
 
+# Decorator: only allows logged-in staff users, others get a 403 page
 def staff_required(view_func):
     @login_required
     def wrapper(request, *args, **kwargs):
@@ -16,22 +18,26 @@ def staff_required(view_func):
     return wrapper
 
 
+# Landing page
 def home(request):
     return render(request, "home.html")
 
 
+# Citizen registration, logs the user in after signing up
 def register(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
+            messages.success(request, "Account created. Welcome!")
             return redirect("home")
     else:
         form = UserCreationForm()
     return render(request, "register.html", {"form": form})
 
 
+# Citizen submits a new service request
 @login_required
 def submit_request(request):
     if request.method == "POST":
@@ -40,18 +46,21 @@ def submit_request(request):
             service_request = form.save(commit=False)
             service_request.citizen = request.user
             service_request.save()
+            messages.success(request, "Your request has been submitted.")
             return redirect("my_requests")
     else:
         form = ServiceRequestForm()
     return render(request, "submit_request.html", {"form": form})
 
 
+# Shows only the logged-in citizen's own requests
 @login_required
 def my_requests(request):
     requests_list = ServiceRequest.objects.filter(citizen=request.user).order_by("-created_at")
     return render(request, "my_requests.html", {"requests_list": requests_list})
 
 
+# Admin view: all requests, filters and analytics counts
 @staff_required
 def admin_dashboard(request):
     all_requests = ServiceRequest.objects.select_related("citizen").order_by("-created_at")
@@ -89,6 +98,7 @@ def admin_dashboard(request):
     return render(request, "admin_dashboard.html", context)
 
 
+# Admin changes the status of one request
 @staff_required
 def update_status(request, pk):
     if request.method == "POST":
@@ -98,4 +108,5 @@ def update_status(request, pk):
         if new_status in valid_statuses:
             service_request.status = new_status
             service_request.save()
+            messages.success(request, f"Status updated to {service_request.get_status_display()}.")
     return redirect("admin_dashboard")
