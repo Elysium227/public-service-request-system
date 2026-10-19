@@ -73,7 +73,7 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 ```
    python manage.py runserver
 ```
-7. Open http://127.0.0.1:8000
+7. Open `http://127.0.0.1:8000` in your browser. This address only works on your own computer while the server is running. The deployed version is at https://elysium227.pythonanywhere.com
 
 Uploaded images are stored in the `media/` folder, which is not committed to the repository.
 
