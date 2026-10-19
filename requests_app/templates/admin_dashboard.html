@@ -1,5 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
+<style>
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .charts .panel { margin-bottom: 0; }
+  .donut-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+  .donut { width: 140px; height: 140px; border-radius: 50%; position: relative; flex-shrink: 0; }
+  .donut::after { content: ""; position: absolute; inset: 28px; border-radius: 50%; background: #fff; }
+  .donut-total { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; z-index: 1; }
+  .legend { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+  .legend li { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .hbar { margin-top: 12px; font-size: 14px; }
+  .hbar .row { display: flex; justify-content: space-between; }
+  .hbar .track { height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin-top: 4px; }
+  .hbar .fill { height: 100%; background: #2f6fb5; border-radius: 6px; }
+  body.dark .donut::after { background: #1e1e1e; }
+  body.dark .hbar .track { background: #333; }
+</style>
+
 <h2>Admin Dashboard</h2>
 
 <div class="stats">
@@ -28,7 +46,39 @@
   <small>Pending {{ pending_pct }}%, In progress {{ in_progress_pct }}%, Resolved {{ resolved_pct }}%</small>
 </div>
 
-<div style="margin-bottom:16px;">
+<div class="charts">
+  <div class="panel">
+    <strong>Requests by status</strong>
+    {% if total_count %}
+    <div class="donut-wrap">
+      <div class="donut" style="background: {{ chart_gradient }};">
+        <div class="donut-total">{{ total_count }}</div>
+      </div>
+      <ul class="legend">
+        <li><span class="dot" style="background:#f59e0b;"></span>Pending ({{ pending_count }})</li>
+        <li><span class="dot" style="background:#3b82f6;"></span>In Progress ({{ in_progress_count }})</li>
+        <li><span class="dot" style="background:#22c55e;"></span>Resolved ({{ resolved_count }})</li>
+      </ul>
+    </div>
+    {% else %}
+    <p>No requests yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <strong>Requests by category</strong>
+    {% for item in category_stats %}
+    <div class="hbar">
+      <div class="row"><span>{{ item.label }}</span><span>{{ item.count }}</span></div>
+      <div class="track"><div class="fill" style="width: {{ item.width }}%;"></div></div>
+    </div>
+    {% empty %}
+    <p>No requests yet.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<div style="margin-bottom:16px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
   <form method="get">
     <select name="status">
       <option value="">All statuses</option>
@@ -45,6 +95,7 @@
     <button type="submit" style="padding:6px 12px; font-size:14px;">Filter</button>
     <a href="{% url 'admin_dashboard' %}">Clear</a>
   </form>
+  <a class="btn" style="padding:6px 12px; font-size:14px;" href="{% url 'export_csv' %}?status={{ status_filter }}&category={{ category_filter }}">Export CSV</a>
 </div>
 
 {% if all_requests %}
