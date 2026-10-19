@@ -1,17 +1,59 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Public Service Request System</h1>
-<p>Report problems in your area, like broken streetlights, water issues or missed garbage collection, and track them until they are resolved.</p>
-{% if user.is_authenticated %}
-  <p>Welcome, {{ user.username }}.</p>
-  <p>
-    <a class="btn" href="{% url 'submit_request' %}">Submit a request</a>
-    <a class="btn" href="{% url 'my_requests' %}">View my requests</a>
-  </p>
-{% else %}
-  <p>
-    <a class="btn" href="{% url 'login' %}">Log in</a>
-    <a class="btn" href="{% url 'register' %}">Register</a>
-  </p>
-{% endif %}
+<section class="hero">
+  <span class="eyebrow">Public Service Request System</span>
+  {% if user.is_authenticated %}
+    <h1>Welcome back, {{ user.username }}</h1>
+    <p>Report a problem in your area, or check on the ones you have already sent in.</p>
+    <div class="actions">
+      <a class="btn btn-light" href="{% url 'submit_request' %}">Submit a request</a>
+      <a class="btn btn-outline" href="{% url 'my_requests' %}">View my requests</a>
+      {% if user.is_staff %}<a class="btn btn-outline" href="{% url 'admin_dashboard' %}">Open dashboard</a>{% endif %}
+    </div>
+  {% else %}
+    <h1>Report it. Track it. Get it fixed.</h1>
+    <p>Broken streetlights, water issues, missed garbage collection. Tell us what is wrong and follow it until it is resolved.</p>
+    <div class="actions">
+      <a class="btn btn-light" href="{% url 'register' %}">Create an account</a>
+      <a class="btn btn-outline" href="{% url 'login' %}">Log in</a>
+    </div>
+  {% endif %}
+</section>
+
+<h2 class="section-title">How it works</h2>
+<div class="steps">
+  <div class="step">
+    <div class="num">1</div>
+    <h3>Report</h3>
+    <p>Describe the problem, pick a category and priority, add the location and an optional photo.</p>
+  </div>
+  <div class="step">
+    <div class="num">2</div>
+    <h3>Review</h3>
+    <p>Our team sees every request on a dashboard and picks it up.</p>
+  </div>
+  <div class="step">
+    <div class="num">3</div>
+    <h3>Resolve</h3>
+    <p>Follow the status of your request until the problem is fixed.</p>
+  </div>
+</div>
+
+<h2 class="section-title">What you can report</h2>
+<div class="tiles">
+  <div class="tile"><span class="icon">💡</span>Broken streetlight</div>
+  <div class="tile"><span class="icon">💧</span>Water issue</div>
+  <div class="tile"><span class="icon">🗑️</span>Garbage collection</div>
+  <div class="tile"><span class="icon">🚧</span>Road damage</div>
+  <div class="tile"><span class="icon">📋</span>Something else</div>
+</div>
+
+<h2 class="section-title">Track every step</h2>
+<div class="flow">
+  <span class="badge pending">Pending</span>
+  <span class="arrow">&rarr;</span>
+  <span class="badge in_progress">In Progress</span>
+  <span class="arrow">&rarr;</span>
+  <span class="badge resolved">Resolved</span>
+</div>
 {% endblock %}
