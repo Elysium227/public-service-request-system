@@ -12,6 +12,7 @@
     <th>Status</th>
     <th>Date</th>
     <th>Image</th>
+    <th>Actions</th>
   </tr>
   {% for r in requests_list %}
   <tr>
@@ -23,6 +24,14 @@
     <td><span class="badge {{ r.status }}">{{ r.get_status_display }}</span></td>
     <td>{{ r.created_at|date:"d M Y" }}</td>
     <td>{% if r.image %}<img src="{{ r.image.url }}" width="80">{% else %}-{% endif %}</td>
+    <td>
+      {% if r.status == "pending" %}
+        <a href="{% url 'edit_request' r.pk %}">Edit</a> |
+        <a href="{% url 'cancel_request' r.pk %}">Cancel</a>
+      {% else %}
+        -
+      {% endif %}
+    </td>
   </tr>
   {% endfor %}
 </table>

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Cancel request {{ r.reference }}?</h2>
+<div class="card">
+  <p>This removes <strong>{{ r.reference }}</strong> ({{ r.get_category_display }} at {{ r.location }}). It cannot be undone.</p>
+  <form method="post" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn-danger">Yes, cancel this request</button>
+  </form>
+  <a class="btn" href="{% url 'request_detail' r.pk %}">Keep it</a>
+</div>
+{% endblock %}

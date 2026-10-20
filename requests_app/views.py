@@ -185,4 +185,51 @@ def request_detail(request, pk):
     service_request = get_object_or_404(ServiceRequest, pk=pk)
     if service_request.citizen != request.user and not request.user.is_staff:
         raise PermissionDenied
-    return render(request, "request_detail.html", {"r": service_request})
+    # Only the owner of a Pending request sees the Edit and Cancel buttons
+    can_modify = service_request.citizen == request.user and service_request.status == "pending"
+    return render(request, "request_detail.html", {"r": service_request, "can_modify": can_modify})
+
+
+# Loads a request that the logged-in citizen is allowed to change.
+# Returns (request, None) if allowed, or (None, redirect response) if not.
+def get_modifiable_request(request, pk):
+    service_request = get_object_or_404(ServiceRequest, pk=pk)
+    if service_request.citizen != request.user:
+        raise PermissionDenied
+    if service_request.status != "pending":
+        messages.error(request, "Only Pending requests can be changed.")
+        return None, redirect("request_detail", pk=pk)
+    return service_request, None
+
+
+# Citizen edits their own Pending request
+@login_required
+def edit_request(request, pk):
+    service_request, denied = get_modifiable_request(request, pk)
+    if denied:
+        return denied
+    if request.method == "POST":
+        form = ServiceRequestForm(request.POST, request.FILES, instance=service_request)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Request {service_request.reference} has been updated.")
+            return redirect("request_detail", pk=pk)
+    else:
+        form = ServiceRequestForm(instance=service_request)
+    return render(request, "edit_request.html", {"form": form, "r": service_request})
+
+
+# Citizen cancels (deletes) their own Pending request after confirming
+@login_required
+def cancel_request(request, pk):
+    service_request, denied = get_modifiable_request(request, pk)
+    if denied:
+        return denied
+    if request.method == "POST":
+        reference = service_request.reference
+        if service_request.image:
+            service_request.image.delete(save=False)
+        service_request.delete()
+        messages.success(request, f"Request {reference} has been cancelled.")
+        return redirect("my_requests")
+    return render(request, "cancel_request.html", {"r": service_request})

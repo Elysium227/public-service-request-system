@@ -276,3 +276,114 @@ class CsvExportTests(BaseTestCase):
         content = self.client.get(reverse("export_csv")).content.decode("utf-8")
         self.assertNotIn(",=HYPERLINK", content)
         self.assertIn("'=HYPERLINK", content)
+
+
+class EditAndCancelTests(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.pending = make_request(self.alice, location="Old Street")
+        self.in_progress = make_request(self.alice, status="in_progress")
+        self.edit_url = reverse("edit_request", args=[self.pending.pk])
+        self.cancel_url = reverse("cancel_request", args=[self.pending.pk])
+
+    def new_data(self):
+        return {
+            "category": "road",
+            "priority": "high",
+            "location": "New Street",
+            "description": "Updated description",
+        }
+
+    def test_owner_sees_edit_and_cancel_buttons_on_pending_request(self):
+        self.login(self.alice)
+        response = self.client.get(reverse("request_detail", args=[self.pending.pk]))
+        self.assertContains(response, self.edit_url)
+        self.assertContains(response, self.cancel_url)
+
+    def test_buttons_hidden_once_request_is_in_progress(self):
+        self.login(self.alice)
+        response = self.client.get(reverse("request_detail", args=[self.in_progress.pk]))
+        self.assertNotContains(response, reverse("edit_request", args=[self.in_progress.pk]))
+
+    def test_buttons_hidden_from_staff(self):
+        self.login(self.admin)
+        response = self.client.get(reverse("request_detail", args=[self.pending.pk]))
+        self.assertNotContains(response, self.edit_url)
+
+    def test_owner_can_edit_pending_request(self):
+        self.login(self.alice)
+        response = self.client.post(self.edit_url, self.new_data())
+        self.assertRedirects(response, reverse("request_detail", args=[self.pending.pk]))
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.location, "New Street")
+        self.assertEqual(self.pending.category, "road")
+        self.assertEqual(self.pending.status, "pending")
+
+    def test_edit_cannot_change_status_or_owner(self):
+        self.login(self.alice)
+        data = self.new_data()
+        data.update({"status": "resolved", "citizen": self.bob.pk})
+        self.client.post(self.edit_url, data)
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.status, "pending")
+        self.assertEqual(self.pending.citizen, self.alice)
+
+    def test_edit_with_invalid_data_keeps_old_values(self):
+        self.login(self.alice)
+        data = self.new_data()
+        data["description"] = ""
+        response = self.client.post(self.edit_url, data)
+        self.assertEqual(response.status_code, 200)
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.location, "Old Street")
+
+    def test_other_citizen_cannot_edit(self):
+        self.login(self.bob)
+        self.assertEqual(self.client.get(self.edit_url).status_code, 403)
+        self.assertEqual(self.client.post(self.edit_url, self.new_data()).status_code, 403)
+        self.pending.refresh_from_db()
+        self.assertEqual(self.pending.location, "Old Street")
+
+    def test_staff_cannot_edit_a_citizens_request(self):
+        self.login(self.admin)
+        self.assertEqual(self.client.get(self.edit_url).status_code, 403)
+
+    def test_cannot_edit_request_that_is_no_longer_pending(self):
+        self.login(self.alice)
+        url = reverse("edit_request", args=[self.in_progress.pk])
+        response = self.client.post(url, self.new_data())
+        self.assertRedirects(response, reverse("request_detail", args=[self.in_progress.pk]))
+        self.in_progress.refresh_from_db()
+        self.assertNotEqual(self.in_progress.location, "New Street")
+
+    def test_edit_requires_login(self):
+        response = self.client.get(self.edit_url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_cancel_page_asks_for_confirmation_and_deletes_nothing(self):
+        self.login(self.alice)
+        response = self.client.get(self.cancel_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(ServiceRequest.objects.filter(pk=self.pending.pk).exists())
+
+    def test_owner_can_cancel_pending_request(self):
+        self.login(self.alice)
+        response = self.client.post(self.cancel_url)
+        self.assertRedirects(response, reverse("my_requests"))
+        self.assertFalse(ServiceRequest.objects.filter(pk=self.pending.pk).exists())
+
+    def test_other_citizen_cannot_cancel(self):
+        self.login(self.bob)
+        self.assertEqual(self.client.post(self.cancel_url).status_code, 403)
+        self.assertTrue(ServiceRequest.objects.filter(pk=self.pending.pk).exists())
+
+    def test_cannot_cancel_request_that_is_no_longer_pending(self):
+        self.login(self.alice)
+        url = reverse("cancel_request", args=[self.in_progress.pk])
+        self.client.post(url)
+        self.assertTrue(ServiceRequest.objects.filter(pk=self.in_progress.pk).exists())
+
+    def test_cancel_requires_login(self):
+        response = self.client.post(self.cancel_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(ServiceRequest.objects.filter(pk=self.pending.pk).exists())

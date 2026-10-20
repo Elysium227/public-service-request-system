@@ -10,4 +10,6 @@ urlpatterns = [
     path("dashboard/export/", views.export_csv, name="export_csv"),
     path("dashboard/update/<int:pk>/", views.update_status, name="update_status"),
     path("request/<int:pk>/", views.request_detail, name="request_detail"),
+    path("request/<int:pk>/edit/", views.edit_request, name="edit_request"),
+    path("request/<int:pk>/cancel/", views.cancel_request, name="cancel_request"),
 ]

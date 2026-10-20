@@ -14,6 +14,12 @@
     <p><img src="{{ r.image.url }}" style="max-width:100%; border-radius:6px;"></p>
   {% endif %}
 </div>
+{% if can_modify %}
+<p>
+  <a class="btn" href="{% url 'edit_request' r.pk %}">Edit request</a>
+  <a class="btn btn-danger" href="{% url 'cancel_request' r.pk %}">Cancel request</a>
+</p>
+{% endif %}
 <p>
   {% if user.is_staff %}
     <a href="{% url 'admin_dashboard' %}">Back to dashboard</a>
