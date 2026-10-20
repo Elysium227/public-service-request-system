@@ -4,6 +4,20 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 
 **Live demo:** https://elysium227.pythonanywhere.com
 
+## Screenshots
+
+| Home | Submit a request |
+|---|---|
+| ![Home page](docs/screenshots/home.png) | ![Submit request form](docs/screenshots/submit-request.png) |
+
+| My requests | Request details |
+|---|---|
+| ![My requests](docs/screenshots/my-requests.png) | ![Request detail page](docs/screenshots/request-detail.png) |
+
+| Admin dashboard | Dark mode |
+|---|---|
+| ![Admin dashboard](docs/screenshots/dashboard.png) | ![Admin dashboard in dark mode](docs/screenshots/dashboard-dark.png) |
+
 ## Features
 
 **Citizens**
@@ -12,6 +26,7 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 - Each request gets a reference number such as REQ-0007
 - View their own requests and see the current status of each
 - Open a detail page for any of their own requests
+- Edit or cancel a request while it is still Pending
 - Success messages confirm actions such as submitting a request
 - Show password checkbox on the login and register forms
 
@@ -34,14 +49,16 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 - Citizen pages require login
 - The dashboard, charts, CSV export and status updates are for staff users only. Other users see an "Access denied" page.
 - Citizens can only open their own requests. Opening someone else's shows "Access denied".
+- Only the owner of a Pending request can edit or cancel it. Once an admin starts work on it, it is locked.
 
 ## Tech Stack
 
 - Python and Django
 - SQLite database (Django default)
 - Pillow for image uploads
-- Plain HTML and CSS templates, with a small script for the dark mode toggle
+- Plain HTML and CSS templates, with a small script for the dark mode toggle and the show password checkbox
 - Charts drawn with CSS only, so no extra libraries are needed
+- Django's built-in test framework
 - Hosted on PythonAnywhere
 
 ## Setup
@@ -83,11 +100,22 @@ Uploaded images are stored in the `media/` folder, which is not committed to the
 1. Click **Register** to create a citizen account.
 2. Click **Submit request**, fill in the form, choose a priority and submit.
 3. Open **My requests** to see your requests and their status, and click a reference number for the full details.
-4. Log in with the admin account and open **Dashboard** to see the charts, view all requests, filter them and change their status.
-5. Click **Export CSV** on the dashboard to download the requests (after filtering, only the filtered rows are exported).
-6. Log back in as the citizen to see the updated status.
+4. While a request is Pending, use **Edit** or **Cancel** to change or remove it.
+5. Log in with the admin account and open **Dashboard** to see the charts, view all requests, filter them and change their status.
+6. Click **Export CSV** on the dashboard to download the requests (after filtering, only the filtered rows are exported).
+7. Log back in as the citizen to see the updated status.
 
 To make an existing user an admin, log in at `/admin/` with the superuser account, open Users, and tick **Staff status** for that user.
+
+## Running the tests
+
+```
+python manage.py test
+```
+
+The 48 tests cover registration, submitting requests, each citizen seeing only their own requests, the staff-only dashboard and status updates, editing and cancelling Pending requests, and the CSV export. They run against a temporary database, so your real data is not touched.
+
+![Tests passing](docs/screenshots/tests-passing.png)
 
 ## Project Structure
 
@@ -96,17 +124,19 @@ config/                 Project settings and main URLs
 requests_app/
     models.py           ServiceRequest model (category, priority, status, image)
     forms.py            Request submission form
-    views.py            Page logic (citizen and admin views, CSV export)
+    views.py            Page logic (citizen and admin views, edit, cancel, CSV export)
     urls.py             App URLs
+    tests.py            Automated tests
     templates/          HTML pages (base layout, home, forms, dashboard, details)
     migrations/         Database migrations
+docs/screenshots/       Screenshots used in this README
 manage.py
 requirements.txt
 ```
 
 ## Request Status Flow
 
-Pending, then In Progress, then Resolved. Only admins can change the status.
+Pending, then In Progress, then Resolved. Only admins can change the status. Citizens can edit or cancel a request only while it is Pending.
 
 ## Configuration
 
@@ -153,6 +183,4 @@ cd ~/public-service-request-system && git pull && source venv/bin/activate && py
 - Login with email and a forgot-password flow
 - Email notifications when a status changes
 - Admin notes on a request, visible to the citizen
-- Let citizens edit or cancel a Pending request
 - Search and pagination on the dashboard
-- Automated tests
