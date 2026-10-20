@@ -13,6 +13,7 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 - View their own requests and see the current status of each
 - Open a detail page for any of their own requests
 - Success messages confirm actions such as submitting a request
+- Show password checkbox on the login and register forms
 
 **Admins**
 - Dashboard listing all requests from all citizens
@@ -25,7 +26,7 @@ A mini eCitizen-style web app where citizens report public service problems (bro
 
 **Interface**
 - Home page with a hero section, a how-it-works guide and the categories that can be reported
-- Dark mode toggle that remembers the choice
+- Dark mode toggle that remembers the choice, with a matching dark theme on every page
 - Status and priority shown as coloured badges
 - Responsive layout that works on small screens
 
